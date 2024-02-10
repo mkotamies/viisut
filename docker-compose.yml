@@ -1,8 +1,8 @@
 version: "3.8"
 services:
-  amenities:
+  euro:
     image: postgres:15.2
-    container_name: amenities_db
+    container_name: euro_db
     restart: always
     ports:
       - "5432:5432"
