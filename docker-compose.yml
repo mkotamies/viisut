@@ -13,9 +13,9 @@ services:
       - ./database:/docker-entrypoint-initdb.d
     secrets:
       - db_password
-  pgadmin:
+  euro_pg_admin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: euro_pg_admin
     restart: always
     ports:
       - "8000:80"
