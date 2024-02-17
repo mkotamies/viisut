@@ -1,5 +1,6 @@
 # Viisut
 
-## Start database and pgAdmin locally
+## Start locally
 
-docker-compose up -d
+- Start application `go run main.go`
+- Start database and pgAdmin locally `docker-compose up -d`
