@@ -1,6 +1,7 @@
 CREATE TABLE contestant (
+    id SERIAL PRIMARY KEY,
     name TEXT,
-    video_id TEXT PRIMARY KEY
+    video_id TEXT UNIQUE
 );
 
 CREATE TABLE statistic (
