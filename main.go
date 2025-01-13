@@ -13,11 +13,11 @@ import (
 )
 
 type Contestant struct {
-	Id    string
+	Id   string
 	Name string
 }
 
-func getContestants(conn *pgx.Conn) map[string][]Contestant{
+func getContestants(conn *pgx.Conn) map[string][]Contestant {
 	var contestants = make(map[string][]Contestant)
 	rows, err := conn.Query(context.Background(), "select id, name from contestant")
 
@@ -25,14 +25,13 @@ func getContestants(conn *pgx.Conn) map[string][]Contestant{
 		fmt.Println(err)
 	}
 	for rows.Next() {
-	var id int32
-	var name string
-	
-  	err := rows.Scan(&id, &name)
-	if err != nil {
-		fmt.Println(err)
-	}
-	contestants["Contestants"] = append(contestants["Contestants"], Contestant{Id: strconv.FormatInt(int64(id), 10), Name: name} )
+		var id int32
+		var name string
+		err := rows.Scan(&id, &name)
+		if err != nil {
+			fmt.Println(err)
+		}
+		contestants["Contestants"] = append(contestants["Contestants"], Contestant{Id: strconv.FormatInt(int64(id), 10), Name: name})
 	}
 	return contestants
 }
@@ -47,16 +46,13 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-
-
 	var contestants map[string][]Contestant
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
-		contestants = getContestants(conn) 
+		contestants = getContestants(conn)
 		tmpl := template.Must(template.ParseFiles("index.html"))
 		tmpl.Execute(w, contestants)
 	}
-
 
 	// define handlers
 	http.HandleFunc("/", h1)

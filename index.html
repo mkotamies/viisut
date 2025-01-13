@@ -18,18 +18,23 @@
     ></script>
   </head>
   <body class="container">
-    <div class="row mt-4 g-4">
-      <div class="col-8">
-        <h1 class="mb-4">Contestant List</h1>
-
-        <ul class="list-group fs-5 me-5" id="constestant-list">
+    <div class="row g-4 mt-4">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Artist - Song</th>
+          </tr>
+        </thead>
+        <tbody>
           {{ range .Contestants }} {{ block "contestant-list-element" .}}
-          <li class="list-group-item bg-primary text-white">
-            {{ .Id }} - {{ .Name }}
-          </li>
+          <tr>
+            <th>{{ .Id }}</th>
+            <td>{{ .Name }}</td>
+          </tr>
           {{ end }} {{ end }}
-        </ul>
-      </div>
+        </tbody>
+      </table>
     </div>
   </body>
 </html>
