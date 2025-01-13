@@ -2,5 +2,5 @@
 
 ## Start locally
 
-- Start application `go run main.go`
+- Start locally with live reload `air`
 - Start database and pgAdmin locally `docker-compose up -d`
