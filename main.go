@@ -23,7 +23,8 @@ type Contestant struct {
 func getContestants(conn *pgx.Conn) map[string][]Contestant {
 	var contestants = make(map[string][]Contestant)
 	rows, err := conn.Query(context.Background(), `SELECT
-    c.id, c.name, s.view_count, s.updated FROM
+	ROW_NUMBER() OVER (ORDER BY updated DESC) AS idx,
+    c.name, s.view_count, s.updated FROM
     contestant as c
 LEFT JOIN LATERAL (
     SELECT s.view_count, s.updated
@@ -31,22 +32,22 @@ LEFT JOIN LATERAL (
     WHERE s.video_id = c.video_id
     ORDER BY s.updated DESC
     LIMIT 1
-) s ON true`)
+) s ON true ORDER BY s.view_count DESC`)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 	for rows.Next() {
-		var id int32
+		var idx int32
 		var name string
 		var view_count int32
 		var updated time.Time
 
-		err := rows.Scan(&id, &name, &view_count, &updated)
+		err := rows.Scan(&idx, &name, &view_count, &updated)
 		if err != nil {
 			fmt.Println(err)
 		}
-		contestants["Contestants"] = append(contestants["Contestants"], Contestant{Id: strconv.FormatInt(int64(id), 10), Name: name, ViewCount: int(view_count), Updated: updated})
+		contestants["Contestants"] = append(contestants["Contestants"], Contestant{Id: strconv.FormatInt(int64(idx), 10), Name: name, ViewCount: int(view_count), Updated: updated})
 	}
 	return contestants
 }
