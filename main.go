@@ -8,18 +8,30 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 )
 
 type Contestant struct {
-	Id   string
-	Name string
+	Id        string
+	Name      string
+	ViewCount int
+	Updated   time.Time
 }
 
 func getContestants(conn *pgx.Conn) map[string][]Contestant {
 	var contestants = make(map[string][]Contestant)
-	rows, err := conn.Query(context.Background(), "select id, name from contestant")
+	rows, err := conn.Query(context.Background(), `SELECT
+    c.id, c.name, s.view_count, s.updated FROM
+    contestant as c
+LEFT JOIN LATERAL (
+    SELECT s.view_count, s.updated
+    FROM statistic as s
+    WHERE s.video_id = c.video_id
+    ORDER BY s.updated DESC
+    LIMIT 1
+) s ON true`)
 
 	if err != nil {
 		fmt.Println(err)
@@ -27,11 +39,14 @@ func getContestants(conn *pgx.Conn) map[string][]Contestant {
 	for rows.Next() {
 		var id int32
 		var name string
-		err := rows.Scan(&id, &name)
+		var view_count int32
+		var updated time.Time
+
+		err := rows.Scan(&id, &name, &view_count, &updated)
 		if err != nil {
 			fmt.Println(err)
 		}
-		contestants["Contestants"] = append(contestants["Contestants"], Contestant{Id: strconv.FormatInt(int64(id), 10), Name: name})
+		contestants["Contestants"] = append(contestants["Contestants"], Contestant{Id: strconv.FormatInt(int64(id), 10), Name: name, ViewCount: int(view_count), Updated: updated})
 	}
 	return contestants
 }
