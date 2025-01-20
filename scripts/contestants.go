@@ -66,12 +66,13 @@ func getContestantsFromDB(conn *pgx.Conn) map[string][]Contestant {
 
 func insertViewInfo(conn *pgx.Conn, contestantViews []VideoInfo) {
 	var rows [][]any
+	var updated = time.Now()
 
 	for _, view := range contestantViews {
 		var row []any
 		row = append(row, view.Items[0].Statistics.ViewCount)
 		row = append(row, view.VideoId)
-		row = append(row, time.Now())
+		row = append(row, updated)
 		rows = append(rows, row)
 	}
 
