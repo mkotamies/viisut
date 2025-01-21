@@ -41,16 +41,16 @@ LEFT JOIN LATERAL (
 		fmt.Println(err)
 	}
 	for rows.Next() {
-		var idx int32
+		var idx int64
 		var name string
-		var view_count int32
+		var view_count int
 		var updated time.Time
 
 		err := rows.Scan(&idx, &name, &view_count, &updated)
 		if err != nil {
 			fmt.Println(err)
 		}
-		contestants["Contestants"] = append(contestants["Contestants"], Contestant{Id: strconv.FormatInt(int64(idx), 10), Name: name, ViewCount: int(view_count), Updated: updated})
+		contestants["Contestants"] = append(contestants["Contestants"], Contestant{Id: strconv.FormatInt(idx, 10), Name: name, ViewCount: view_count, Updated: updated})
 	}
 	return contestants
 }

@@ -49,7 +49,7 @@ func getContestantsFromDB(conn *pgx.Conn) map[string][]Contestant {
 		fmt.Println(err)
 	}
 	for rows.Next() {
-		var id int32
+		var id int64
 		var name string
 		var videoId string
 
@@ -59,7 +59,7 @@ func getContestantsFromDB(conn *pgx.Conn) map[string][]Contestant {
 		}
 		fmt.Println(videoId)
 		contestants["Contestants"] = append(contestants["Contestants"],
-			Contestant{Id: strconv.FormatInt(int64(id), 10), Name: name, VideoId: videoId})
+			Contestant{Id: strconv.FormatInt(id, 10), Name: name, VideoId: videoId})
 	}
 	return contestants
 }
