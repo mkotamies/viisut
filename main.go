@@ -169,8 +169,16 @@ func httpserver(conn *pgx.Conn) http.HandlerFunc {
 	}
 }
 
+// func test() {
+// 	for range time.Tick(time.Second * 3) {
+// 		fmt.Println("Test...")
+// 	}
+// }
+
 func main() {
 	fmt.Println("Go app...")
+
+	// go test()
 
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
