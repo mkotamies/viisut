@@ -55,8 +55,8 @@ LEFT JOIN LATERAL (
 	return contestants
 }
 
-func getTimeInterval(conn *pgx.Conn) []time.Time {
-	var updateTimes []time.Time
+func getTimeInterval(conn *pgx.Conn) []string {
+	var updateTimes []string
 	query := `SELECT DISTINCT updated AS count FROM statistic`
 
 	rows, err := conn.Query(context.Background(), query)
@@ -70,7 +70,7 @@ func getTimeInterval(conn *pgx.Conn) []time.Time {
 		if err != nil {
 			fmt.Println(err)
 		}
-		updateTimes = append(updateTimes, updated)
+		updateTimes = append(updateTimes, updated.Format("2006-01-02"))
 
 	}
 
