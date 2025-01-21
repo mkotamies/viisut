@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"html/template"
@@ -23,8 +24,8 @@ type Contestant struct {
 	Updated   time.Time
 }
 
-func getContestants(conn *pgx.Conn) map[string][]Contestant {
-	var contestants = make(map[string][]Contestant)
+func getContestants(conn *pgx.Conn) []Contestant {
+	var contestants []Contestant
 	rows, err := conn.Query(context.Background(), `SELECT
 	ROW_NUMBER() OVER (ORDER BY updated DESC) AS idx,
     c.name, s.view_count, s.updated FROM
@@ -50,7 +51,7 @@ LEFT JOIN LATERAL (
 		if err != nil {
 			fmt.Println(err)
 		}
-		contestants["Contestants"] = append(contestants["Contestants"], Contestant{Id: strconv.FormatInt(idx, 10), Name: name, ViewCount: view_count, Updated: updated})
+		contestants = append(contestants, Contestant{Id: strconv.FormatInt(idx, 10), Name: name, ViewCount: view_count, Updated: updated})
 	}
 	return contestants
 }
@@ -145,28 +146,33 @@ func generateLineItems(viewCounts Views) []opts.LineData {
 	return items
 }
 
-func httpserver(conn *pgx.Conn) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var timeInterval = getTimeInterval(conn)
-		var contestantViews = getContestantViews(conn)
+func createChart(conn *pgx.Conn) template.HTML {
+	var timeInterval = getTimeInterval(conn)
+	var contestantViews = getContestantViews(conn)
 
-		line := charts.NewLine()
-		line.SetGlobalOptions(
-			charts.WithInitializationOpts(opts.Initialization{Theme: types.ThemeWesteros}),
-			charts.WithTitleOpts(opts.Title{
-				Title:    "Video trends over time",
-				Subtitle: "Video views",
-			}))
+	line := charts.NewLine()
+	line.SetGlobalOptions(
+		charts.WithInitializationOpts(opts.Initialization{Theme: types.ThemeWesteros}),
+		charts.WithTitleOpts(opts.Title{
+			Title:    "Video trends over time",
+			Subtitle: "Video views",
+		}))
 
-		var xAxis = line.SetXAxis(timeInterval)
+	var xAxis = line.SetXAxis(timeInterval)
 
-		for i := range contestantViews {
-			var contestant = contestantViews[i]
-			xAxis.AddSeries(contestant.Name, generateLineItems(contestant.ViewCounts))
-		}
-		xAxis.SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: opts.Bool(true)}))
-		line.Render(w)
+	for i := range contestantViews {
+		var contestant = contestantViews[i]
+		xAxis.AddSeries(contestant.Name, generateLineItems(contestant.ViewCounts))
 	}
+	xAxis.SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: opts.Bool(true)}))
+
+	var buf bytes.Buffer
+	err := line.Render(&buf)
+	if err != nil {
+		panic(err)
+	}
+
+	return template.HTML(buf.String())
 }
 
 // func test() {
@@ -187,17 +193,29 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	var contestants map[string][]Contestant
+	// var contestants map[string][]Contestant
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
-		contestants = getContestants(conn)
+		contestants := getContestants(conn)
+
+		chartHTML := createChart(conn)
+
+		data := struct {
+			Contestants []Contestant
+			Chart       template.HTML
+		}{
+			Contestants: contestants,
+			Chart:       chartHTML,
+		}
+
 		tmpl := template.Must(template.ParseFiles("index.html"))
-		tmpl.Execute(w, contestants)
+		if err := tmpl.Execute(w, data); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 
 	// define handlers
 	http.HandleFunc("/", h1)
-	http.HandleFunc("/chart", httpserver(conn))
 
 	log.Fatal(http.ListenAndServe("localhost:9000", nil))
 

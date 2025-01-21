@@ -27,6 +27,7 @@
           </tr>
         </thead>
         <tbody>
+          <div>{{ .Chart }}</div>
           {{ range .Contestants }} {{ block "contestant-list-element" .}}
           <tr>
             <th>{{ .Id }}</th>
