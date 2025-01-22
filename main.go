@@ -152,11 +152,7 @@ func createChart(conn *pgx.Conn) template.HTML {
 
 	line := charts.NewLine()
 	line.SetGlobalOptions(
-		charts.WithInitializationOpts(opts.Initialization{Theme: types.ThemeWesteros}),
-		charts.WithTitleOpts(opts.Title{
-			Title:    "Video trends over time",
-			Subtitle: "Video views",
-		}))
+		charts.WithInitializationOpts(opts.Initialization{Theme: types.ThemeWesteros, Width: "100%"}))
 
 	var xAxis = line.SetXAxis(timeInterval)
 
