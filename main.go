@@ -27,7 +27,7 @@ type Contestant struct {
 func getContestants(conn *pgx.Conn) []Contestant {
 	var contestants []Contestant
 	rows, err := conn.Query(context.Background(), `SELECT
-	ROW_NUMBER() OVER (ORDER BY updated DESC) AS idx,
+	ROW_NUMBER() OVER (ORDER BY s.view_count DESC) AS idx,
     c.name, s.view_count, s.updated FROM
     contestant as c
 LEFT JOIN LATERAL (
