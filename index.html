@@ -24,24 +24,36 @@
   </head>
   <body class="container">
     <div class="row g-4 mt-4">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Artist - Song - View Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          <div>{{ .Chart }}</div>
-          {{ range .Contestants }} {{ block "contestant-list-element" .}}
-          <tr>
-            <th>{{ .Id }}</th>
-            <td>{{ .Name }}</td>
-            <td>{{ .ViewCount }}</td>
-          </tr>
-          {{ end }} {{ end }}
-        </tbody>
-      </table>
+      <h1 class="text-center">Viisut - Who will will Eurovision 2025?</h1>
+      <div>{{ .Chart }}</div>
+      <h2 class="text-center">Most listened songs</h2>
+      <div
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+        "
+      >
+        <table class="table text-center" style="max-width: 900px">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Artist - Song</th>
+              <th scope="col">View Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range .Contestants }} {{ block "contestant-list-element" .}}
+            <tr>
+              <th>{{ .Id }}</th>
+              <td>{{ .Name }}</td>
+              <td>{{ .ViewCount }}</td>
+            </tr>
+            {{ end }} {{ end }}
+          </tbody>
+        </table>
+      </div>
     </div>
   </body>
 </html>
