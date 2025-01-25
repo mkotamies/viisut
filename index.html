@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -23,36 +23,39 @@
     ></script>
   </head>
   <body class="container">
-    <div class="row g-4 mt-4">
-      <h1 class="text-center">Viisut - Who will win Eurovision 2025?</h1>
-      <div>{{ .Chart }}</div>
-      <h2 class="text-center">Most listened songs</h2>
+    <div class="row">
+      <h1>Viisut - Who will win Eurovision 2025?</h1>
       <div
+        class="g-4 mt-4"
         style="
           display: flex;
-          justify-content: center;
+          justify-content: space-evenly;
           align-items: center;
           width: 100%;
         "
       >
-        <table class="table text-center" style="max-width: 900px">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Artist - Song</th>
-              <th scope="col">View Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{ range .Contestants }} {{ block "contestant-list-element" .}}
-            <tr>
-              <th>{{ .Id }}</th>
-              <td>{{ .Name }}</td>
-              <td>{{ .ViewCount }}</td>
-            </tr>
-            {{ end }} {{ end }}
-          </tbody>
-        </table>
+        <div style="width: 50%">{{ .Chart }}</div>
+        <div style="justify-content: center; align-items: center">
+          <h2 class="text-center">Results</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Artist - Song</th>
+                <th scope="col">View Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range .Contestants }} {{ block "contestant-list-element" .}}
+              <tr>
+                <th>{{ .Id }}</th>
+                <td>{{ .Name }}</td>
+                <td>{{ .ViewCount }}</td>
+              </tr>
+              {{ end }} {{ end }}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </body>
