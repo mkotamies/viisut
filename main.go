@@ -88,21 +88,32 @@ type ContestantViews struct {
 	ViewCounts Views
 }
 
+func isInContestants(contestants []ContestantViews, videoId string) int {
+	for i := range contestants {
+		if (contestants)[i].VideoId == videoId {
+
+			return i
+		}
+	}
+	return -1
+}
+
 func AddOrUpdateContestantView(contestants []ContestantViews, videoId, name string, viewCount int, updated time.Time) []ContestantViews {
 	if contestants == nil {
 		contestants = append(contestants, ContestantViews{VideoId: videoId, Name: name, ViewCounts: Views{{Count: viewCount, Updated: updated}}})
 		return contestants
 	}
-	for i := range contestants {
-		if (contestants)[i].VideoId == videoId {
-			(contestants)[i].ViewCounts = append((contestants)[i].ViewCounts, struct {
-				Count   int
-				Updated time.Time
-			}{
-				Count:   viewCount,
-				Updated: updated,
-			})
-		}
+
+	var contenstantIndex = isInContestants(contestants, videoId)
+	if contenstantIndex >= 0 {
+		(contestants)[contenstantIndex].ViewCounts = append((contestants)[contenstantIndex].ViewCounts, struct {
+			Count   int
+			Updated time.Time
+		}{
+			Count:   viewCount,
+			Updated: updated,
+		})
+	} else {
 		contestants = append(contestants, ContestantViews{VideoId: videoId, Name: name, ViewCounts: Views{{Count: viewCount, Updated: updated}}})
 	}
 	return contestants
@@ -155,7 +166,6 @@ func createChart(conn *pgx.Conn) template.HTML {
 		charts.WithInitializationOpts(opts.Initialization{Theme: types.ThemeWesteros, Width: "100%"}))
 
 	var xAxis = line.SetXAxis(timeInterval)
-
 	for i := range contestantViews {
 		var contestant = contestantViews[i]
 		xAxis.AddSeries(contestant.Name, generateLineItems(contestant.ViewCounts))
