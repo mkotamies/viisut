@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/go-echarts/go-echarts/v2/types"
@@ -21,7 +22,7 @@ import (
 type Contestant struct {
 	Id        string
 	Name      string
-	ViewCount int
+	ViewCount string
 	Updated   time.Time
 }
 
@@ -45,14 +46,14 @@ LEFT JOIN LATERAL (
 	for rows.Next() {
 		var idx int64
 		var name string
-		var view_count int
+		var view_count int64
 		var updated time.Time
 
 		err := rows.Scan(&idx, &name, &view_count, &updated)
 		if err != nil {
 			fmt.Println(err)
 		}
-		contestants = append(contestants, Contestant{Id: strconv.FormatInt(idx, 10), Name: name, ViewCount: view_count, Updated: updated})
+		contestants = append(contestants, Contestant{Id: strconv.FormatInt(idx, 10), Name: name, ViewCount: humanize.Comma(view_count), Updated: updated})
 	}
 	return contestants
 }
