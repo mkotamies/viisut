@@ -223,6 +223,6 @@ func main() {
 	// define handlers
 	http.HandleFunc("/", h1)
 
-	log.Fatal(http.ListenAndServe("localhost:9000", nil))
+	log.Fatal(http.ListenAndServe(":9000", nil))
 
 }
