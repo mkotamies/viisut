@@ -58,7 +58,7 @@ LEFT JOIN LATERAL (
 
 func getTimeInterval(conn *pgx.Conn) []string {
 	var updateTimes []string
-	query := `SELECT DISTINCT updated AS count FROM statistic`
+	query := `SELECT DISTINCT updated AS count FROM statistic ORDER BY updated ASC`
 
 	rows, err := conn.Query(context.Background(), query)
 	if err != nil {
