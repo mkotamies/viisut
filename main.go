@@ -14,6 +14,7 @@ import (
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/go-echarts/go-echarts/v2/types"
+	"github.com/gorilla/handlers"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -223,6 +224,6 @@ func main() {
 	// define handlers
 	http.HandleFunc("/", h1)
 
-	log.Fatal(http.ListenAndServe(":9000", nil))
+	log.Fatal(http.ListenAndServe(":9000", handlers.CompressHandler(http.DefaultServeMux)))
 
 }
