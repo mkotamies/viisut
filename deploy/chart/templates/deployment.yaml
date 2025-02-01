@@ -1,0 +1,27 @@
+{{- $fullName := printf "%s-%s" (include "viisut.fullname" .) "web" -}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ $fullName }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: {{ $fullName }}
+    spec:
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 8 }}
+      containers:
+        - name: {{ $fullName }}
+          image: {{ .Values.web.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.web.port }}
+          envFrom:
+            - secretRef:
+                name: viisut-secret

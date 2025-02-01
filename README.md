@@ -13,3 +13,7 @@ docker build -t viisut .
 ## Run with Docker
 
 docker run -p 9000:9000 viisut
+
+## Deploy with helm
+
+`helm install viisut ./deploy/chart -f ./deploy/chart/values.yaml`

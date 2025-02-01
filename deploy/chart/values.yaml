@@ -1,0 +1,10 @@
+host: kotis.dev
+
+web:
+  image: registry.kotis.dev/viisut:latest
+  port: 9000
+  envFrom:
+    - secretRef:
+        name: viisut-secret
+imagePullSecrets:
+  - name: private-registry

@@ -1,0 +1,15 @@
+{{- $fullName := printf "%s-%s" (include "viisut.fullname" .) "web" -}}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app.kubernetes.io/instance: {{ $fullName }}
+spec:
+  type: NodePort
+  ports:
+    - port: {{ .Values.web.port }}
+      targetPort: {{ .Values.web.port }}
+      name: http
+  selector:
+    app.kubernetes.io/instance: {{ $fullName }}

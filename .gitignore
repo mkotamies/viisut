@@ -6,3 +6,4 @@ bin
 tmp
 curl.txt
 notes
+deploy/secret.yaml
