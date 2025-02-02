@@ -17,6 +17,7 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
 COPY --from=builder /app/viisut .
 COPY --from=builder /app/index.html .
+COPY --from=builder /app/favicon.ico .
 
 EXPOSE 9000
 
