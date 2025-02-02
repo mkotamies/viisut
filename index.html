@@ -26,36 +26,29 @@
   <body class="container">
     <div class="row">
       <h1>Viisut - Who will win Eurovision 2025?</h1>
-      <div
-        class="g-4 mt-4"
-        style="
-          display: flex;
-          justify-content: space-evenly;
-          align-items: center;
-          width: 100%;
-        "
-      >
-        <div style="width: 50%">{{ .Chart }}</div>
-        <div style="justify-content: center; align-items: center">
-          <h2 class="text-center">Results</h2>
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Artist - Song</th>
-                <th scope="col">Views</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{ range .Contestants }} {{ block "contestant-list-element" .}}
-              <tr>
-                <th>{{ .Id }}</th>
-                <td>{{ .Name }}</td>
-                <td>{{ .ViewCount }}</td>
-              </tr>
-              {{ end }} {{ end }}
-            </tbody>
-          </table>
+      <div class="container g-4 mt-4">
+        <div class="row align-items-start" style="width: 100%">
+          <div class="col-12 col-md-6" style="margin-top: 30px">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Artist - Song</th>
+                  <th scope="col">Views</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{ range .Contestants }} {{ block "contestant-list-element" .}}
+                <tr>
+                  <th>{{ .Id }}</th>
+                  <td>{{ .Name }}</td>
+                  <td>{{ .ViewCount }}</td>
+                </tr>
+                {{ end }} {{ end }}
+              </tbody>
+            </table>
+          </div>
+          <div class="col-12 col-md-6">{{ .Chart }}</div>
         </div>
       </div>
     </div>
