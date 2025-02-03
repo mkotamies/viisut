@@ -16,7 +16,7 @@ import (
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/go-echarts/go-echarts/v2/types"
 	"github.com/gorilla/handlers"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Contestant struct {
@@ -26,9 +26,9 @@ type Contestant struct {
 	Updated   time.Time
 }
 
-func getContestants(conn *pgx.Conn) []Contestant {
+func getContestants(pool *pgxpool.Pool) []Contestant {
 	var contestants []Contestant
-	rows, err := conn.Query(context.Background(), `SELECT
+	rows, err := pool.Query(context.Background(), `SELECT
 	ROW_NUMBER() OVER (ORDER BY s.view_count DESC) AS idx,
     c.name, s.view_count, s.updated FROM
     contestant as c
@@ -58,11 +58,11 @@ LEFT JOIN LATERAL (
 	return contestants
 }
 
-func getTimeInterval(conn *pgx.Conn) []string {
+func getTimeInterval(pool *pgxpool.Pool) []string {
 	var updateTimes []string
 	query := `SELECT DISTINCT updated AS count FROM statistic ORDER BY updated ASC`
 
-	rows, err := conn.Query(context.Background(), query)
+	rows, err := pool.Query(context.Background(), query)
 	if err != nil {
 		log.Fatalf("Query failed: %v\n", err)
 	}
@@ -121,9 +121,9 @@ func AddOrUpdateContestantView(contestants []ContestantViews, videoId, name stri
 	return contestants
 }
 
-func getContestantViews(conn *pgx.Conn) []ContestantViews {
+func getContestantViews(pool *pgxpool.Pool) []ContestantViews {
 	var contestantViews []ContestantViews
-	rows, err := conn.Query(context.Background(), `SELECT
+	rows, err := pool.Query(context.Background(), `SELECT
     c.video_id, c.name, s.view_count, s.updated FROM
     contestant as c
 LEFT JOIN LATERAL (
@@ -159,9 +159,9 @@ func generateLineItems(viewCounts Views) []opts.LineData {
 	return items
 }
 
-func createChart(conn *pgx.Conn) template.HTML {
-	var timeInterval = getTimeInterval(conn)
-	var contestantViews = getContestantViews(conn)
+func createChart(pool *pgxpool.Pool) template.HTML {
+	var timeInterval = getTimeInterval(pool)
+	var contestantViews = getContestantViews(pool)
 
 	line := charts.NewLine()
 	line.SetGlobalOptions(
@@ -194,19 +194,19 @@ func main() {
 
 	// go test()
 
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		os.Exit(1)
 	}
-	defer conn.Close(context.Background())
+	defer dbpool.Close()
 
 	// var contestants map[string][]Contestant
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
-		contestants := getContestants(conn)
+		contestants := getContestants(dbpool)
 
-		chartHTML := createChart(conn)
+		chartHTML := createChart(dbpool)
 
 		data := struct {
 			Contestants []Contestant
