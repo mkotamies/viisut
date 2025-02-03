@@ -192,6 +192,11 @@ func createChart(pool *pgxpool.Pool) template.HTML {
 func main() {
 	fmt.Println("Go app...")
 
+	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/x-icon")
+		http.ServeFile(w, r, "./favicon.ico")
+	})
+
 	// go test()
 
 	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
