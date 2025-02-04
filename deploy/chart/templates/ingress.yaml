@@ -25,4 +25,10 @@ spec:
             name: {{ $fullName }}-web
             port:
               number: {{ .Values.web.port }}
+logs:
+  access:
+    enabled: true
+    format: common
+    filePath: "/var/log/traefik/access.log"
+
 
