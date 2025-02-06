@@ -227,6 +227,13 @@ func main() {
 		}
 	}
 
+	eurovisionHandler := func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("euroviisut.html"))
+		if err := tmpl.Execute(w, nil); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+	http.HandleFunc("/euroviisut", eurovisionHandler)
 	// define handlers
 	http.HandleFunc("/", h1)
 
