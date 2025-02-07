@@ -92,10 +92,29 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     aspectRatio: window.innerWidth < 500 ? 0.7 : 1,
+                    scales: {
+                      x: {
+                        ticks: {
+                          color: "white",
+                        },
+                      },
+                      y: {
+                        ticks: {
+                          color: "white",
+                        },
+                      },
+                    },
                     plugins: {
+                      legend: {
+                        labels: {
+                          color: "white",
+                        },
+                      },
+
                       title: {
                         display: true,
                         text: "Youtube videoiden katselumäärät",
+                        color: "white",
                       },
                     },
                   },
