@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -12,9 +12,6 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"github.com/go-echarts/go-echarts/v2/charts"
-	"github.com/go-echarts/go-echarts/v2/opts"
-	"github.com/go-echarts/go-echarts/v2/types"
 	"github.com/gorilla/handlers"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -151,43 +148,30 @@ LEFT JOIN LATERAL (
 	return contestantViews
 }
 
-func generateLineItems(viewCounts Views) []opts.LineData {
-	items := make([]opts.LineData, 0)
+func generateLineItems(viewCounts Views) []int {
+	items := make([]int, 0)
 	for j := range viewCounts {
-		items = append(items, opts.LineData{Value: viewCounts[j].Count})
+		items = append(items, viewCounts[j].Count)
 	}
 	return items
 }
 
-func createChart(pool *pgxpool.Pool) template.HTML {
-	var timeInterval = getTimeInterval(pool)
-	var contestantViews = getContestantViews(pool)
-
-	line := charts.NewLine()
-	line.SetGlobalOptions(
-		charts.WithInitializationOpts(opts.Initialization{Theme: types.ThemeWesteros, Width: "100%"}))
-
-	var xAxis = line.SetXAxis(timeInterval)
-	for i := range contestantViews {
-		var contestant = contestantViews[i]
-		xAxis.AddSeries(contestant.Name, generateLineItems(contestant.ViewCounts))
-	}
-	xAxis.SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: opts.Bool(true)}))
-
-	var buf bytes.Buffer
-	err := line.Render(&buf)
-	if err != nil {
-		panic(err)
-	}
-
-	return template.HTML(buf.String())
+func toJSON(v interface{}) string {
+	b, _ := json.Marshal(v)
+	return string(b)
 }
 
-// func test() {
-// 	for range time.Tick(time.Second * 3) {
-// 		fmt.Println("Test...")
-// 	}
-// }
+type responseWriterWrapper struct {
+	http.ResponseWriter
+	written bool
+}
+
+func (rw *responseWriterWrapper) WriteHeader(statusCode int) {
+	if !rw.written {
+		rw.ResponseWriter.WriteHeader(statusCode)
+		rw.written = true
+	}
+}
 
 func main() {
 	fmt.Println("Go app...")
@@ -206,24 +190,44 @@ func main() {
 	}
 	defer dbpool.Close()
 
-	// var contestants map[string][]Contestant
-
 	h1 := func(w http.ResponseWriter, r *http.Request) {
+		wrappedWriter := &responseWriterWrapper{ResponseWriter: w}
 		contestants := getContestants(dbpool)
+		contestantsViews := getContestantViews(dbpool)
+		var timeInterval = getTimeInterval(dbpool)
 
-		chartHTML := createChart(dbpool)
+		type ChartData struct {
+			Label       string `json:"label"`
+			Data        []int  `json:"data"`
+			BorderWidth int    `json:"borderWidth"`
+		}
+
+		var chartData []ChartData
+
+		for i := range contestantsViews {
+			contestant := contestantsViews[i]
+			chartData = append(chartData, ChartData{
+				Label:       contestant.Name,
+				Data:        generateLineItems(contestant.ViewCounts),
+				BorderWidth: 1,
+			})
+		}
 
 		data := struct {
 			Contestants []Contestant
-			Chart       template.HTML
+			Labels      string
+			ChartData   string
 		}{
 			Contestants: contestants,
-			Chart:       chartHTML,
+			Labels:      toJSON(timeInterval),
+			ChartData:   toJSON(chartData),
 		}
 
 		tmpl := template.Must(template.ParseFiles("index.html"))
-		if err := tmpl.Execute(w, data); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+		wrappedWriter.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+		if err := tmpl.Execute(wrappedWriter, data); err != nil {
+			http.Error(wrappedWriter, err.Error(), http.StatusInternalServerError)
 		}
 	}
 
