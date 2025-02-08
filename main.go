@@ -128,7 +128,7 @@ LEFT JOIN LATERAL (
     FROM statistic as s
     WHERE s.video_id = c.video_id
     ORDER BY s.updated ASC
-) s ON true`)
+) s ON true WHERE c.video_id != 'PjthWPX1DcU'`)
 
 	if err != nil {
 		fmt.Println(err)
