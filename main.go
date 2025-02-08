@@ -223,7 +223,7 @@ func main() {
 			ChartData:   toJSON(chartData),
 		}
 
-		tmpl := template.Must(template.ParseFiles("index.html"))
+		tmpl := template.Must(template.ParseFiles("templates/index.html"))
 		wrappedWriter.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 		if err := tmpl.Execute(wrappedWriter, data); err != nil {
@@ -232,7 +232,7 @@ func main() {
 	}
 
 	eurovisionHandler := func(w http.ResponseWriter, r *http.Request) {
-		tmpl := template.Must(template.ParseFiles("euroviisut.html"))
+		tmpl := template.Must(template.ParseFiles("templates/euroviisut.html"))
 		if err := tmpl.Execute(w, nil); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
