@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -xeuo pipefail
+
+TIMESTAMP=$(date +%F_%H-%M-%S)
+
+docker exec -t euro_db pg_dump -U user-name -d user-name > database/backup_$TIMESTAMP.sql
