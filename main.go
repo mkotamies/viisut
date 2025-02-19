@@ -23,6 +23,7 @@ type Contestant struct {
 	Updated   time.Time
 	Event     string
 	Country   *string
+	VideoId   string
 }
 
 func getContestants(pool *pgxpool.Pool, eventP string) []Contestant {
@@ -177,6 +178,35 @@ func (rw *responseWriterWrapper) WriteHeader(statusCode int) {
 	}
 }
 
+func runDailyUpdate(pool *pgxpool.Pool) {
+	for {
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Println("Recovered from panic:", r)
+				}
+			}()
+
+			now := time.Now()
+			nextRun := time.Date(now.Year(), now.Month(), now.Day(), 20, 0, 0, 0, now.Location())
+			if now.After(nextRun) {
+				nextRun = nextRun.Add(24 * time.Hour)
+			}
+
+			sleepDuration := nextRun.Sub(now)
+
+			timer := time.NewTimer(sleepDuration)
+			<-timer.C
+
+			go func() {
+				fmt.Println("Running the scheduled task at", time.Now())
+
+				UpdateContestantViews(pool, "eurovision")
+			}()
+		}()
+	}
+}
+
 func main() {
 	fmt.Println("Go app...")
 
@@ -185,14 +215,14 @@ func main() {
 		http.ServeFile(w, r, "./favicon.ico")
 	})
 
-	// go test()
-
 	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		os.Exit(1)
 	}
 	defer dbpool.Close()
+
+	go runDailyUpdate(dbpool)
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
 		event := "umk"
