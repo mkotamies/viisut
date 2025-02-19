@@ -2,6 +2,7 @@ CREATE TABLE contestant (
     id SERIAL PRIMARY KEY,
     name TEXT,
     video_id TEXT UNIQUE
+    event TEXT CHECK (event IN ('umk', 'eurovision')) NOT NULL DEFAULT 'umk'
 );
 
 CREATE TABLE statistic (
@@ -12,7 +13,7 @@ CREATE TABLE statistic (
     updated TIMESTAMP
 );
 
-COPY contestant (name, video_id)
+COPY contestant (name, video_id, event)
 FROM '/docker-entrypoint-initdb.d/contestant.csv'
 DELIMITER ','
 CSV HEADER;

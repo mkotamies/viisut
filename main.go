@@ -23,7 +23,7 @@ type Contestant struct {
 	Updated   time.Time
 }
 
-func getContestants(pool *pgxpool.Pool) []Contestant {
+func getContestants(pool *pgxpool.Pool, event string) []Contestant {
 	var contestants []Contestant
 	rows, err := pool.Query(context.Background(), `SELECT
 	ROW_NUMBER() OVER (ORDER BY s.view_count DESC) AS idx,
@@ -32,10 +32,10 @@ func getContestants(pool *pgxpool.Pool) []Contestant {
 LEFT JOIN LATERAL (
     SELECT s.view_count, s.updated
     FROM statistic as s
-    WHERE s.video_id = c.video_id
+    WHERE s.video_id = c.video_id AND event = $1
     ORDER BY s.updated DESC
     LIMIT 1
-) s ON true ORDER BY s.view_count DESC`)
+) s ON true ORDER BY s.view_count DESC`, event)
 
 	if err != nil {
 		fmt.Println(err)
@@ -118,7 +118,7 @@ func AddOrUpdateContestantView(contestants []ContestantViews, videoId, name stri
 	return contestants
 }
 
-func getContestantViews(pool *pgxpool.Pool) []ContestantViews {
+func getContestantViews(pool *pgxpool.Pool, event string) []ContestantViews {
 	var contestantViews []ContestantViews
 	rows, err := pool.Query(context.Background(), `SELECT
     c.video_id, c.name, s.view_count, s.updated FROM
@@ -126,9 +126,9 @@ func getContestantViews(pool *pgxpool.Pool) []ContestantViews {
 LEFT JOIN LATERAL (
     SELECT s.view_count, s.updated
     FROM statistic as s
-    WHERE s.video_id = c.video_id
+    WHERE s.video_id = c.video_id AND event = $1
     ORDER BY s.updated ASC
-) s ON true WHERE c.video_id != 'PjthWPX1DcU'`)
+) s ON true WHERE c.video_id != 'PjthWPX1DcU'`, event)
 
 	if err != nil {
 		fmt.Println(err)
@@ -191,9 +191,10 @@ func main() {
 	defer dbpool.Close()
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
+		event := "umk"
 		wrappedWriter := &responseWriterWrapper{ResponseWriter: w}
-		contestants := getContestants(dbpool)
-		contestantsViews := getContestantViews(dbpool)
+		contestants := getContestants(dbpool, event)
+		contestantsViews := getContestantViews(dbpool, event)
 		var timeInterval = getTimeInterval(dbpool)
 
 		type ChartData struct {
