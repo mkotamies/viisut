@@ -21,21 +21,23 @@ type Contestant struct {
 	Name      string
 	ViewCount string
 	Updated   time.Time
+	Event     string
+	Country   *string
 }
 
-func getContestants(pool *pgxpool.Pool, event string) []Contestant {
+func getContestants(pool *pgxpool.Pool, eventP string) []Contestant {
 	var contestants []Contestant
 	rows, err := pool.Query(context.Background(), `SELECT
 	ROW_NUMBER() OVER (ORDER BY s.view_count DESC) AS idx,
-    c.name, s.view_count, s.updated FROM
+    c.name, s.view_count, s.updated, c.event, c.country FROM
     contestant as c
 LEFT JOIN LATERAL (
     SELECT s.view_count, s.updated
     FROM statistic as s
-    WHERE s.video_id = c.video_id AND event = $1
+    WHERE s.video_id = c.video_id
     ORDER BY s.updated DESC
     LIMIT 1
-) s ON true ORDER BY s.view_count DESC`, event)
+) s ON true WHERE event = $1 ORDER BY s.view_count DESC`, eventP)
 
 	if err != nil {
 		fmt.Println(err)
@@ -45,12 +47,14 @@ LEFT JOIN LATERAL (
 		var name string
 		var view_count int64
 		var updated time.Time
+		var event string
+		var country *string
 
-		err := rows.Scan(&idx, &name, &view_count, &updated)
+		err := rows.Scan(&idx, &name, &view_count, &updated, &event, &country)
 		if err != nil {
 			fmt.Println(err)
 		}
-		contestants = append(contestants, Contestant{Id: strconv.FormatInt(idx, 10), Name: name, ViewCount: humanize.Comma(view_count), Updated: updated})
+		contestants = append(contestants, Contestant{Id: strconv.FormatInt(idx, 10), Name: name, ViewCount: humanize.Comma(view_count), Updated: updated, Country: country, Event: event})
 	}
 	return contestants
 }
@@ -233,8 +237,71 @@ func main() {
 	}
 
 	eurovisionHandler := func(w http.ResponseWriter, r *http.Request) {
+		event := "eurovision"
+		contestants := getContestants(dbpool, event)
+
+		type Contestant struct {
+			Country   string `json:"country"`
+			Name      string `json:"name"`
+			Event     string `json:"event"`
+			ViewCount string `json:"viewCount"`
+		}
+		contestantsTemp := []Contestant{
+			{"Albania", "Shkodra Elektronike - Zjerm", "eurovision", "-"},
+			{"Armenia", "Parg - Survivor", "eurovision", "-"},
+			{"Australia", "", "eurovision", "-"},
+			{"Austria", "JJ - Wasted Love", "eurovision", "-"},
+			{"Azerbaijan", "Mamagama - Run with U", "eurovision", "-"},
+			{"Belgium", "Red Sebastian - Strobe Lights", "eurovision", "-"},
+			{"Croatia", "", "eurovision", "-"},
+			{"Cyprus", "Theo Evan - ", "eurovision", "-"},
+			{"Czechia", "Adonxs - Kiss Kiss Goodbye", "eurovision", "-"},
+			{"Denmark", "", "eurovision", "-"},
+			{"Estonia", "Tommy Cash - Espresso macchiato", "eurovision", "-"},
+			{"Finland", "Erika Vikman - Ich komme", "eurovision", "-"},
+			{"France", "Louane - ", "eurovision", "-"},
+			{"Georgia", "", "eurovision", "-"},
+			{"Germany", "", "eurovision", "-"},
+			{"Greece", "Klavdia - Asteromata", "eurovision", "-"},
+			{"Iceland", "", "eurovision", "-"},
+			{"Ireland", "Emmy - Laika Party", "eurovision", "-"},
+			{"Israel", "Yuval Raphael - ", "eurovision", "-"},
+			{"Italy", "", "eurovision", "-"},
+			{"Latvia", "Tautumeitas - Bur man laimi", "eurovision", "-"},
+			{"Lithuania", "Katarsis - Tavo akys", "eurovision", "-"},
+			{"Luxembourg", "Laura Thorn - La poupée monte le son", "eurovision", "-"},
+			{"Malta", "Miriana Conte - Kant", "eurovision", "-"},
+			{"Montenegro", "Nina Žižić - Dobrodošli", "eurovision", "-"},
+			{"Netherlands", "Claude - ", "eurovision", "-"},
+			{"Norway", "Kyle Alessandro - Lighter", "eurovision", "-"},
+			{"Poland", "Justyna Steczkowska - Gaja", "eurovision", "-"},
+			{"Portugal", "", "eurovision", "-"},
+			{"San Marino", "", "eurovision", "-"},
+			{"Serbia", "", "eurovision", "-"},
+			{"Slovenia", "Klemen - How Much Time Do We Have Left", "eurovision", "-"},
+			{"Spain", "Melody - Esa diva", "eurovision", "-"},
+			{"Sweden", "", "eurovision", "-"},
+			{"Switzerland", "", "eurovision", "-"},
+			{"Ukraine", "Ziferblat - Bird of Pray", "eurovision", "-"},
+			{"United Kingdom", "", "eurovision", "-"},
+		}
+
+		for i := range contestantsTemp {
+			for j := range contestants {
+				if contestants[j].Name == contestantsTemp[i].Name {
+					contestantsTemp[i].ViewCount = contestants[j].ViewCount
+				}
+			}
+		}
+
+		data := struct {
+			Contestants []Contestant
+		}{
+			Contestants: contestantsTemp,
+		}
+
 		tmpl := template.Must(template.ParseFiles("templates/euroviisut.html"))
-		if err := tmpl.Execute(w, nil); err != nil {
+		if err := tmpl.Execute(w, data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}

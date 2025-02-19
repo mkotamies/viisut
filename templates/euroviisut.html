@@ -42,6 +42,27 @@
     </nav>
     <div class="container justify-content-center vh-100 align-content-center text-center">
         <h1>2025 Euroviisujen tulosennusteet tulossa pian. Pysy kuulolla!</h1>
+        <div class="container text-center" style="margin-top: 30px">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Maa</th>
+                <th scope="col">Artisti - Kappale</th>
+                <th scope="col">Katselut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range .Contestants }} {{ block "contestant-list-element"
+              .}}
+              <tr>
+                <th>{{ .Country }}</th>
+                <td>{{ .Name }}</td>
+                <td>{{ .ViewCount }}</td>
+              </tr>
+              {{ end }} {{ end }}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
     <script
