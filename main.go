@@ -271,49 +271,50 @@ func main() {
 		contestants := getContestants(dbpool, event)
 
 		type Contestant struct {
-			Country   string `json:"country"`
-			Name      string `json:"name"`
-			Event     string `json:"event"`
-			ViewCount string `json:"viewCount"`
+			Country     string `json:"country"`
+			Name        string `json:"name"`
+			Event       string `json:"event"`
+			ViewCount   string `json:"viewCount"`
+			CountryCode string `json:"countryCode"`
 		}
 		contestantsTemp := []Contestant{
-			{"Albania", "Shkodra Elektronike - Zjerm", "eurovision", "-"},
-			{"Armenia", "Parg - Survivor", "eurovision", "-"},
-			{"Australia", "", "eurovision", "-"},
-			{"Austria", "JJ - Wasted Love", "eurovision", "-"},
-			{"Azerbaijan", "Mamagama - Run with U", "eurovision", "-"},
-			{"Belgium", "Red Sebastian - Strobe Lights", "eurovision", "-"},
-			{"Croatia", "", "eurovision", "-"},
-			{"Cyprus", "Theo Evan - ", "eurovision", "-"},
-			{"Czechia", "Adonxs - Kiss Kiss Goodbye", "eurovision", "-"},
-			{"Denmark", "", "eurovision", "-"},
-			{"Estonia", "Tommy Cash - Espresso macchiato", "eurovision", "-"},
-			{"Finland", "Erika Vikman - Ich komme", "eurovision", "-"},
-			{"France", "Louane - ", "eurovision", "-"},
-			{"Georgia", "", "eurovision", "-"},
-			{"Germany", "", "eurovision", "-"},
-			{"Greece", "Klavdia - Asteromata", "eurovision", "-"},
-			{"Iceland", "", "eurovision", "-"},
-			{"Ireland", "Emmy - Laika Party", "eurovision", "-"},
-			{"Israel", "Yuval Raphael - ", "eurovision", "-"},
-			{"Italy", "", "eurovision", "-"},
-			{"Latvia", "Tautumeitas - Bur man laimi", "eurovision", "-"},
-			{"Lithuania", "Katarsis - Tavo akys", "eurovision", "-"},
-			{"Luxembourg", "Laura Thorn - La poupée monte le son", "eurovision", "-"},
-			{"Malta", "Miriana Conte - Kant", "eurovision", "-"},
-			{"Montenegro", "Nina Žižić - Dobrodošli", "eurovision", "-"},
-			{"Netherlands", "Claude - ", "eurovision", "-"},
-			{"Norway", "Kyle Alessandro - Lighter", "eurovision", "-"},
-			{"Poland", "Justyna Steczkowska - Gaja", "eurovision", "-"},
-			{"Portugal", "", "eurovision", "-"},
-			{"San Marino", "", "eurovision", "-"},
-			{"Serbia", "", "eurovision", "-"},
-			{"Slovenia", "Klemen - How Much Time Do We Have Left", "eurovision", "-"},
-			{"Spain", "Melody - Esa diva", "eurovision", "-"},
-			{"Sweden", "", "eurovision", "-"},
-			{"Switzerland", "", "eurovision", "-"},
-			{"Ukraine", "Ziferblat - Bird of Pray", "eurovision", "-"},
-			{"United Kingdom", "", "eurovision", "-"},
+			{"Albania", "Shkodra Elektronike - Zjerm", "eurovision", "-", "al"},
+			{"Armenia", "Parg - Survivor", "eurovision", "-", "am"},
+			{"Australia", "", "eurovision", "-", "au"},
+			{"Austria", "JJ - Wasted Love", "eurovision", "-", "at"},
+			{"Azerbaijan", "Mamagama - Run with U", "eurovision", "-", "az"},
+			{"Belgium", "Red Sebastian - Strobe Lights", "eurovision", "-", "be"},
+			{"Croatia", "", "eurovision", "-", "hr"},
+			{"Cyprus", "Theo Evan - ", "eurovision", "-", "cy"},
+			{"Czechia", "Adonxs - Kiss Kiss Goodbye", "eurovision", "-", "cz"},
+			{"Denmark", "", "eurovision", "-", "dk"},
+			{"Estonia", "Tommy Cash - Espresso macchiato", "eurovision", "-", "ee"},
+			{"Finland", "Erika Vikman - Ich komme", "eurovision", "-", "fi"},
+			{"France", "Louane - ", "eurovision", "-", "fr"},
+			{"Georgia", "", "eurovision", "-", "ge"},
+			{"Germany", "", "eurovision", "-", "de"},
+			{"Greece", "Klavdia - Asteromata", "eurovision", "-", "gr"},
+			{"Iceland", "", "eurovision", "-", "is"},
+			{"Ireland", "Emmy - Laika Party", "eurovision", "-", "ie"},
+			{"Israel", "Yuval Raphael - ", "eurovision", "-", "il"},
+			{"Italy", "", "eurovision", "-", "it"},
+			{"Latvia", "Tautumeitas - Bur man laimi", "eurovision", "-", "lv"},
+			{"Lithuania", "Katarsis - Tavo akys", "eurovision", "-", "lt"},
+			{"Luxembourg", "Laura Thorn - La poupée monte le son", "eurovision", "-", "lu"},
+			{"Malta", "Miriana Conte - Kant", "eurovision", "-", "mt"},
+			{"Montenegro", "Nina Žižić - Dobrodošli", "eurovision", "-", "me"},
+			{"Netherlands", "Claude - ", "eurovision", "-", "nl"},
+			{"Norway", "Kyle Alessandro - Lighter", "eurovision", "-", "no"},
+			{"Poland", "Justyna Steczkowska - Gaja", "eurovision", "-", "pl"},
+			{"Portugal", "", "eurovision", "-", "pt"},
+			{"San Marino", "", "eurovision", "-", "sm"},
+			{"Serbia", "", "eurovision", "-", "rs"},
+			{"Slovenia", "Klemen - How Much Time Do We Have Left", "eurovision", "-", "si"},
+			{"Spain", "Melody - Esa diva", "eurovision", "-", "es"},
+			{"Sweden", "", "eurovision", "-", "se"},
+			{"Switzerland", "", "eurovision", "-", "ch"},
+			{"Ukraine", "Ziferblat - Bird of Pray", "eurovision", "-", "ua"},
+			{"United Kingdom", "", "eurovision", "-", "gb"},
 		}
 
 		for i := range contestantsTemp {

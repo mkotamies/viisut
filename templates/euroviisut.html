@@ -30,7 +30,14 @@
               {{ range .Contestants }} {{ block "contestant-list-element"
               .}}
               <tr>
-                <th>{{ .Country }}</th>
+                <th class="d-flex align-items-center gap-2">
+                  <img
+                  src="https://flagcdn.com/16x12/{{ .CountryCode }}.png"
+                  width="16"
+                  height="12"
+                  alt="{{ .Country }}" />
+                  {{ .Country }}
+                  </th>
                 <td>{{ .Name }}</td>
                 <td>{{ .ViewCount }}</td>
               </tr>
