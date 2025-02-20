@@ -258,7 +258,7 @@ func main() {
 			ChartData:   toJSON(chartData),
 		}
 
-		tmpl := template.Must(template.ParseFiles("templates/index.html", "templates/footer.html"))
+		tmpl := template.Must(template.ParseFiles("templates/index.html", "templates/navbar.html", "templates/footer.html"))
 		wrappedWriter.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 		if err := tmpl.Execute(wrappedWriter, data); err != nil {
@@ -330,7 +330,7 @@ func main() {
 			Contestants: contestantsTemp,
 		}
 
-		tmpl := template.Must(template.ParseFiles("templates/euroviisut.html", "templates/footer.html"))
+		tmpl := template.Must(template.ParseFiles("templates/euroviisut.html", "templates/navbar.html", "templates/footer.html"))
 		if err := tmpl.Execute(w, data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
