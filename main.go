@@ -224,7 +224,7 @@ func main() {
 
 	go runDailyUpdate(dbpool)
 
-	h1 := func(w http.ResponseWriter, r *http.Request) {
+	umkHandler := func(w http.ResponseWriter, r *http.Request) {
 		event := "umk"
 		wrappedWriter := &responseWriterWrapper{ResponseWriter: w}
 		contestants := getContestants(dbpool, event)
@@ -338,7 +338,7 @@ func main() {
 	}
 	http.HandleFunc("/euroviisut", eurovisionHandler)
 	// define handlers
-	http.HandleFunc("/", h1)
+	http.HandleFunc("/", umkHandler)
 
 	log.Fatal(http.ListenAndServe(":9000", handlers.CompressHandler(http.DefaultServeMux)))
 
