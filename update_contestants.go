@@ -1,17 +1,13 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
-	"time"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -36,56 +32,7 @@ type VideoInfo struct {
 	} `json:"pageInfo"`
 }
 
-func getContestantsFromDB(pool *pgxpool.Pool, event string) map[string][]Contestant {
-	var contestants = make(map[string][]Contestant)
-	rows, err := pool.Query(context.Background(), "select id, name, video_id from contestant WHERE event = $1", event)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	for rows.Next() {
-		var id int64
-		var name string
-		var videoId string
-
-		err := rows.Scan(&id, &name, &videoId)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(videoId)
-		contestants["Contestants"] = append(contestants["Contestants"],
-			Contestant{Id: strconv.FormatInt(id, 10), Name: name, VideoId: videoId})
-	}
-	return contestants
-}
-
-func insertViewInfo(pool *pgxpool.Pool, contestantViews []VideoInfo) {
-	var rows [][]any
-	var updated = time.Now()
-
-	for _, view := range contestantViews {
-		var row []any
-		row = append(row, view.Items[0].Statistics.ViewCount)
-		row = append(row, view.VideoId)
-		row = append(row, updated)
-		rows = append(rows, row)
-	}
-
-	copyCount, copyError := pool.CopyFrom(
-		context.Background(),
-		pgx.Identifier{"statistic"},
-		[]string{"view_count", "video_id", "updated"},
-		pgx.CopyFromRows(rows),
-	)
-
-	if copyError != nil {
-		fmt.Println(copyError)
-	}
-
-	fmt.Println(copyCount)
-}
-
-func getContestantViewsFromYoutube(contestants map[string][]Contestant) []VideoInfo {
+func GetContestantViewsFromYoutube(contestants map[string][]Contestant) []VideoInfo {
 	var contestantViews []VideoInfo
 	for _, contestant := range contestants["Contestants"] {
 		fmt.Println(contestant.VideoId)
@@ -113,9 +60,9 @@ func getContestantViewsFromYoutube(contestants map[string][]Contestant) []VideoI
 }
 
 func UpdateContestantViews(pool *pgxpool.Pool, event string) {
-	var contestants map[string][]Contestant = getContestantsFromDB(pool, event)
+	var contestants map[string][]Contestant = GetContestantsFromDB(pool, event)
 
-	var contestantViews = getContestantViewsFromYoutube(contestants)
+	var contestantViews = GetContestantViewsFromYoutube(contestants)
 
-	insertViewInfo(pool, contestantViews)
+	InsertViewInfo(pool, contestantViews)
 }
