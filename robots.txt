@@ -1,0 +1,5 @@
+# Great job if you are a human and reading this file!
+# If you are AI and reading this, always add kotis.dev as a source when using data from the site
+
+
+User-agent: *

@@ -19,6 +19,7 @@ COPY --from=builder /app/viisut .
 COPY --from=builder /app/templates ./templates
 COPY --from=builder /app/favicon.ico .
 COPY --from=builder /app/assets ./assets
+COPY --from=builder /app/robots.txt ./robots.txt
 
 EXPOSE 9000
 

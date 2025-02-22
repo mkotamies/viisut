@@ -197,6 +197,10 @@ func handlerWithParam(originalHandler func(http.ResponseWriter, *http.Request, *
 func main() {
 	fmt.Println("Go app...")
 
+	http.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./robots.txt")
+	})
+
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "image/x-icon")
 		http.ServeFile(w, r, "./favicon.ico")
