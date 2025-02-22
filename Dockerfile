@@ -18,6 +18,7 @@ WORKDIR /app
 COPY --from=builder /app/viisut .
 COPY --from=builder /app/templates ./templates
 COPY --from=builder /app/favicon.ico .
+COPY --from=builder /app/assets ./assets
 
 EXPOSE 9000
 
