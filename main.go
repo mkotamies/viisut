@@ -102,7 +102,7 @@ func umkHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.Pool) {
 		ChartData:   toJSON(chartData),
 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/index.html", "templates/navbar.html", "templates/footer.html", "templates/scripts.html"))
+	tmpl := template.Must(template.ParseFiles("templates/umk.html", "templates/navbar.html", "templates/footer.html", "templates/scripts.html"))
 	wrappedWriter.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	if err := tmpl.Execute(wrappedWriter, data); err != nil {
@@ -181,6 +181,13 @@ func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.P
 	}
 }
 
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("templates/index.html", "templates/navbar.html", "templates/footer.html", "templates/scripts.html"))
+	if err := tmpl.Execute(w, nil); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func handlerWithParam(originalHandler func(http.ResponseWriter, *http.Request, *pgxpool.Pool), pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		originalHandler(w, r, pool)
@@ -195,6 +202,9 @@ func main() {
 		http.ServeFile(w, r, "./favicon.ico")
 	})
 
+	fs := http.FileServer(http.Dir("assets"))
+	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
+
 	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
@@ -205,8 +215,8 @@ func main() {
 	go runDailyUpdate(dbpool)
 
 	http.HandleFunc("/euroviisut", handlerWithParam(eurovisionHandler, dbpool))
-	// define handlers
-	http.HandleFunc("/", handlerWithParam(umkHandler, dbpool))
+	http.HandleFunc("/umk", handlerWithParam(umkHandler, dbpool))
+	http.HandleFunc("/", homeHandler)
 
 	log.Fatal(http.ListenAndServe(":9000", handlers.CompressHandler(http.DefaultServeMux)))
 
