@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+for i in assets/original/*.{jpg,jpeg,png}; do
+    if [ -f "$i" ]; then
+        filename=$(basename -- "$i")
+        extension="${filename##*.}"
+        filename="${filename%.*}"
+        # resize to 800px width with 80% quality
+        cwebp -resize 800 0 "$i" -o "assets/${filename}.webp"
+    fi
+done
