@@ -137,39 +137,30 @@ type ContestantViews struct {
 	ViewCounts Views
 }
 
-func isInContestants(contestants []ContestantViews, videoId string) int {
-	for i := range contestants {
-		if (contestants)[i].VideoId == videoId {
+func AddOrUpdateContestantView(contestants map[string]ContestantViews, videoId, name string, viewCount int, updated time.Time) map[string]ContestantViews {
+	contestant, exists := contestants[videoId]
 
-			return i
-		}
-	}
-	return -1
-}
-
-func AddOrUpdateContestantView(contestants []ContestantViews, videoId, name string, viewCount int, updated time.Time) []ContestantViews {
-	if contestants == nil {
-		contestants = append(contestants, ContestantViews{VideoId: videoId, Name: name, ViewCounts: Views{{Count: viewCount, Updated: updated}}})
-		return contestants
-	}
-
-	var contenstantIndex = isInContestants(contestants, videoId)
-	if contenstantIndex >= 0 {
-		(contestants)[contenstantIndex].ViewCounts = append((contestants)[contenstantIndex].ViewCounts, struct {
+	if exists {
+		contestant.ViewCounts = append(contestant.ViewCounts, struct {
 			Count   int
 			Updated time.Time
 		}{
 			Count:   viewCount,
 			Updated: updated,
 		})
+
+		contestants[videoId] = contestant
 	} else {
-		contestants = append(contestants, ContestantViews{VideoId: videoId, Name: name, ViewCounts: Views{{Count: viewCount, Updated: updated}}})
+		contestants[videoId] = ContestantViews{VideoId: videoId, Name: name, ViewCounts: Views{{Count: viewCount, Updated: updated}}}
+
 	}
+
 	return contestants
 }
 
-func GetContestantViews(pool *pgxpool.Pool, event string) []ContestantViews {
-	var contestantViews []ContestantViews
+func GetContestantViews(pool *pgxpool.Pool, event string) map[string]ContestantViews {
+	contestantViews := make(map[string]ContestantViews)
+
 	rows, err := pool.Query(context.Background(), `SELECT
     c.video_id, c.name, s.view_count, s.updated FROM
     contestant as c
