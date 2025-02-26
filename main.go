@@ -124,7 +124,7 @@ func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.P
 	contestantsTemp := []Contestant{
 		{"Albania", "Shkodra Elektronike - Zjerm", "eurovision", "-", "al"},
 		{"Armenia", "Parg - Survivor", "eurovision", "-", "am"},
-		{"Australia", "TBA 25.2", "eurovision", "-", "au"},
+		{"Australia", "Go-Jo - Milkshake Man", "eurovision", "-", "au"},
 		{"Austria", "JJ - Wasted Love", "eurovision", "-", "at"},
 		{"Azerbaijan", "Mamagama - Run with U", "eurovision", "-", "az"},
 		{"Belgium", "Red Sebastian - Strobe Lights", "eurovision", "-", "be"},
