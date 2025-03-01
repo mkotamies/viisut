@@ -75,7 +75,7 @@ func GetContestants(pool *pgxpool.Pool, eventP string) []Contestant {
 	var contestants []Contestant
 	rows, err := pool.Query(context.Background(), `SELECT
 	ROW_NUMBER() OVER (ORDER BY s.view_count DESC) AS idx,
-    c.name, s.view_count, s.updated, c.event, c.country FROM
+    c.name, COALESCE(s.view_count, 0), COALESCE(s.updated, NOW()), c.event, c.country FROM
     contestant as c
 LEFT JOIN LATERAL (
     SELECT s.view_count, s.updated
