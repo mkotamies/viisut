@@ -147,7 +147,7 @@ func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.P
 		{"Luxembourg", "Laura Thorn - La poupée monte le son", "eurovision", "-", "lu"},
 		{"Malta", "Miriana Conte - Kant", "eurovision", "-", "mt"},
 		{"Montenegro", "Nina Žižić - Dobrodošli", "eurovision", "-", "me"},
-		{"Netherlands", "Claude - ", "eurovision", "-", "nl"},
+		{"Netherlands", "Claude - C'est La Vie", "eurovision", "-", "nl"},
 		{"Norway", "Kyle Alessandro - Lighter", "eurovision", "-", "no"},
 		{"Poland", "Justyna Steczkowska - Gaja", "eurovision", "-", "pl"},
 		{"Portugal", "TBA 8.3", "eurovision", "-", "pt"},
