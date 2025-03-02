@@ -73,7 +73,7 @@ func umkHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.Pool) {
 	wrappedWriter := &responseWriterWrapper{ResponseWriter: w}
 	contestants := GetContestants(dbpool, event)
 	contestantsViews := GetContestantViews(dbpool, event)
-	var timeInterval = GetTimeInterval(dbpool)
+	var timeInterval = GetTimeInterval(dbpool, "2025-02-08 23:59:59")
 
 	type ChartData struct {
 		Label       string `json:"label"`

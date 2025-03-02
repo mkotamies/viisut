@@ -105,11 +105,11 @@ LEFT JOIN LATERAL (
 	return contestants
 }
 
-func GetTimeInterval(pool *pgxpool.Pool) []string {
+func GetTimeInterval(pool *pgxpool.Pool, endDate string) []string {
 	var updateTimes []string
-	query := `SELECT DISTINCT updated AS count FROM statistic ORDER BY updated ASC`
+	query := `SELECT DISTINCT updated AS count FROM statistic WHERE updated <= $1 ORDER BY updated ASC`
 
-	rows, err := pool.Query(context.Background(), query)
+	rows, err := pool.Query(context.Background(), query, endDate)
 	if err != nil {
 		log.Fatalf("Query failed: %v\n", err)
 	}
