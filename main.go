@@ -158,7 +158,7 @@ func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.P
 		{"Sweden", "TBA 8.3", "eurovision", "-", "se"},
 		{"Switzerland", "TBA 10.3", "eurovision", "-", "ch"},
 		{"Ukraine", "Ziferblat - Bird of Pray", "eurovision", "-", "ua"},
-		{"United Kingdom", "Ei tietoa", "eurovision", "-", "gb"},
+		{"United Kingdom", "Remember Monday - What The Hell Just Happened?", "eurovision", "-", "gb"},
 	}
 
 	for i := range contestantsTemp {
