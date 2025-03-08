@@ -140,7 +140,7 @@ func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.P
 		{"Greece", "Klavdia - Asteromata", "eurovision", "-", "gr"},
 		{"Iceland", "Væb - Róa", "eurovision", "-", "is"},
 		{"Ireland", "Emmy - Laika Party", "eurovision", "-", "ie"},
-		{"Israel", "Yuval Raphael - ", "eurovision", "-", "il"},
+		{"Israel", "Yuval Raphael - New Day Will Rise", "eurovision", "-", "il"},
 		{"Italy", "Lucio Corsi - Volevo essere un duro", "eurovision", "-", "it"},
 		{"Latvia", "Tautumeitas - Bur man laimi", "eurovision", "-", "lv"},
 		{"Lithuania", "Katarsis - Tavo akys", "eurovision", "-", "lt"},
