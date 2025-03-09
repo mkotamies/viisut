@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gorilla/handlers"
@@ -169,13 +170,23 @@ func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.P
 		}
 	}
 
+	funcMap := template.FuncMap{
+		"lower": strings.ToLower,
+	}
+
+	tmpl := template.Must(template.New("euroviisut.html").Funcs(funcMap).ParseFiles(
+		"templates/euroviisut.html",
+		"templates/navbar.html",
+		"templates/footer.html",
+		"templates/scripts.html",
+	))
+
 	data := struct {
 		Contestants []Contestant
 	}{
 		Contestants: contestantsTemp,
 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/euroviisut.html", "templates/navbar.html", "templates/footer.html", "templates/scripts.html"))
 	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
