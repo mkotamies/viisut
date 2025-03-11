@@ -72,7 +72,7 @@ func runDailyUpdate(pool *pgxpool.Pool) {
 func umkHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.Pool) {
 	event := "umk"
 	wrappedWriter := &responseWriterWrapper{ResponseWriter: w}
-	contestants := GetContestants(dbpool, event)
+	contestants := GetContestants(dbpool, "s.view_count", "DESC", event)
 	contestantsViews := GetContestantViews(dbpool, event)
 	var timeInterval = GetTimeInterval(dbpool, "2025-02-08 23:59:59")
 
@@ -113,62 +113,7 @@ func umkHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.Pool) {
 
 func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.Pool) {
 	event := "eurovision"
-	contestants := GetContestants(dbpool, event)
-
-	type Contestant struct {
-		Country     string `json:"country"`
-		Name        string `json:"name"`
-		Event       string `json:"event"`
-		ViewCount   string `json:"viewCount"`
-		CountryCode string `json:"countryCode"`
-	}
-	contestantsTemp := []Contestant{
-		{"Albania", "Shkodra Elektronike - Zjerm", "eurovision", "-", "al"},
-		{"Armenia", "Parg - Survivor", "eurovision", "-", "am"},
-		{"Australia", "Go-Jo - Milkshake Man", "eurovision", "-", "au"},
-		{"Austria", "JJ - Wasted Love", "eurovision", "-", "at"},
-		{"Azerbaijan", "Mamagama - Run with U", "eurovision", "-", "az"},
-		{"Belgium", "Red Sebastian - Strobe Lights", "eurovision", "-", "be"},
-		{"Croatia", "Marko Bošnjak - Poison Cake", "eurovision", "-", "hr"},
-		{"Cyprus", "Theo Evan - ", "eurovision", "-", "cy"},
-		{"Czechia", "Adonxs - Kiss Kiss Goodbye", "eurovision", "-", "cz"},
-		{"Denmark", "Sissal - Hallucination", "eurovision", "-", "dk"},
-		{"Estonia", "Tommy Cash - Espresso macchiato", "eurovision", "-", "ee"},
-		{"Finland", "Erika Vikman - Ich komme", "eurovision", "-", "fi"},
-		{"France", "Louane - ", "eurovision", "-", "fr"},
-		{"Georgia", "Ei tiedossa", "eurovision", "-", "ge"},
-		{"Germany", "Abor & Tynna - Baller", "eurovision", "-", "de"},
-		{"Greece", "Klavdia - Asteromata", "eurovision", "-", "gr"},
-		{"Iceland", "Væb - Róa", "eurovision", "-", "is"},
-		{"Ireland", "Emmy - Laika Party", "eurovision", "-", "ie"},
-		{"Israel", "Yuval Raphael - New Day Will Rise", "eurovision", "-", "il"},
-		{"Italy", "Lucio Corsi - Volevo essere un duro", "eurovision", "-", "it"},
-		{"Latvia", "Tautumeitas - Bur man laimi", "eurovision", "-", "lv"},
-		{"Lithuania", "Katarsis - Tavo akys", "eurovision", "-", "lt"},
-		{"Luxembourg", "Laura Thorn - La poupée monte le son", "eurovision", "-", "lu"},
-		{"Malta", "Miriana Conte - Kant", "eurovision", "-", "mt"},
-		{"Montenegro", "Nina Žižić - Dobrodošli", "eurovision", "-", "me"},
-		{"Netherlands", "Claude - C'est La Vie", "eurovision", "-", "nl"},
-		{"Norway", "Kyle Alessandro - Lighter", "eurovision", "-", "no"},
-		{"Poland", "Justyna Steczkowska - Gaja", "eurovision", "-", "pl"},
-		{"Portugal", "NAPA - Deslocado", "eurovision", "-", "pt"},
-		{"San Marino", "Gabry Ponte - Tutta l'Italia", "eurovision", "-", "sm"},
-		{"Serbia", "Princ - Mila", "eurovision", "-", "rs"},
-		{"Slovenia", "Klemen - How Much Time Do We Have Left", "eurovision", "-", "si"},
-		{"Spain", "Melody - Esa diva", "eurovision", "-", "es"},
-		{"Sweden", "Kaj - Bara bada bastu", "eurovision", "-", "se"},
-		{"Switzerland", "Zoë Më - Voyage", "eurovision", "-", "ch"},
-		{"Ukraine", "Ziferblat - Bird of Pray", "eurovision", "-", "ua"},
-		{"United Kingdom", "Remember Monday - What The Hell Just Happened?", "eurovision", "-", "gb"},
-	}
-
-	for i := range contestantsTemp {
-		for j := range contestants {
-			if contestants[j].Name == contestantsTemp[i].Name {
-				contestantsTemp[i].ViewCount = contestants[j].ViewCount
-			}
-		}
-	}
+	contestants := GetContestants(dbpool, "c.country", "ASC", event)
 
 	funcMap := template.FuncMap{
 		"lower": strings.ToLower,
@@ -184,7 +129,7 @@ func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.P
 	data := struct {
 		Contestants []Contestant
 	}{
-		Contestants: contestantsTemp,
+		Contestants: contestants,
 	}
 
 	if err := tmpl.Execute(w, data); err != nil {

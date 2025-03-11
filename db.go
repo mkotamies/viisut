@@ -24,7 +24,7 @@ type Contestant struct {
 
 func GetContestantsFromDB(pool *pgxpool.Pool, event string) map[string][]Contestant {
 	var contestants = make(map[string][]Contestant)
-	rows, err := pool.Query(context.Background(), "select id, name, video_id from contestant WHERE event = $1", event)
+	rows, err := pool.Query(context.Background(), "select id, name, video_id from contestant WHERE event = $1 AND video_id IS NOT NULL", event)
 
 	if err != nil {
 		fmt.Println(err)
@@ -71,19 +71,24 @@ func InsertViewInfo(pool *pgxpool.Pool, contestantViews []VideoInfo) {
 	fmt.Println(copyCount)
 }
 
-func GetContestants(pool *pgxpool.Pool, eventP string) []Contestant {
+func GetContestants(pool *pgxpool.Pool, sortColumn string, sortDirection string, event string) []Contestant {
 	var contestants []Contestant
-	rows, err := pool.Query(context.Background(), `SELECT
-	ROW_NUMBER() OVER (ORDER BY s.view_count DESC) AS idx,
-    c.name, COALESCE(s.view_count, 0), COALESCE(s.updated, NOW()), c.event, c.country FROM
-    contestant as c
-LEFT JOIN LATERAL (
-    SELECT s.view_count, s.updated
-    FROM statistic as s
-    WHERE s.video_id = c.video_id
-    ORDER BY s.updated DESC
-    LIMIT 1
-) s ON true WHERE event = $1 ORDER BY s.view_count DESC`, eventP)
+
+	query := fmt.Sprintf(`
+    SELECT
+        ROW_NUMBER() OVER (ORDER BY %s %s) AS idx,
+        c.name, COALESCE(s.view_count, 0), COALESCE(s.updated, NOW()), c.event, c.country
+    FROM contestant as c
+    LEFT JOIN LATERAL (
+        SELECT s.view_count, s.updated
+        FROM statistic as s
+        WHERE s.video_id = c.video_id
+        ORDER BY s.updated DESC
+        LIMIT 1
+    ) s ON true 
+    WHERE event = $1`, sortColumn, sortDirection)
+
+	rows, err := pool.Query(context.Background(), query, event)
 
 	if err != nil {
 		fmt.Println(err)
