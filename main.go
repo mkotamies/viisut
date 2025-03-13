@@ -114,6 +114,7 @@ func umkHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.Pool) {
 func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.Pool) {
 	event := "eurovision"
 	contestants := GetContestants(dbpool, "c.country", "ASC", event)
+	updated := GetLastUpdated(dbpool)
 
 	funcMap := template.FuncMap{
 		"lower": strings.ToLower,
@@ -128,8 +129,10 @@ func eurovisionHandler(w http.ResponseWriter, r *http.Request, dbpool *pgxpool.P
 
 	data := struct {
 		Contestants []Contestant
+		Updated     string
 	}{
 		Contestants: contestants,
+		Updated:     updated.Format("02.1.2006"),
 	}
 
 	if err := tmpl.Execute(w, data); err != nil {

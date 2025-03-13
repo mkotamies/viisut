@@ -193,3 +193,12 @@ LEFT JOIN LATERAL (
 	}
 	return contestantViews
 }
+
+func GetLastUpdated(dbpool *pgxpool.Pool) time.Time {
+	var updated time.Time
+	err := dbpool.QueryRow(context.Background(), "SELECT updated FROM statistic ORDER BY updated DESC LIMIT 1").Scan(&updated)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return updated
+}
